@@ -74,11 +74,16 @@ public class GestureTransformationView extends View {
     public void setStickrDrawable(Drawable drawable) {
         mDrawable = drawable;
         mDrawable.setBounds(0, 0, mDrawable.getIntrinsicWidth()/2, mDrawable.getIntrinsicHeight()/2);
+        invalidate();
     }
 
     @Override
     public void onDraw(Canvas canvas) {
         super.onDraw(canvas);
+
+        if(mDrawable == null) {
+            return;
+        }
 
         float centerX = mDrawable.getBounds().centerX();
         float centerY = mDrawable.getBounds().centerY();
