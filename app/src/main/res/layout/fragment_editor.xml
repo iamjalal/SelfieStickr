@@ -1,16 +1,16 @@
 <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
-    android:layout_height="match_parent">
+    android:layout_height="match_parent"
+    android:background="@android:color/black">
 
     <ImageView
-        android:id="@+id/image"
+        android:id="@+id/imageView"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:scaleType="fitCenter"
-        android:src="@drawable/sample_image_1"/>
+        android:scaleType="fitCenter"/>
 
     <jalal.test.com.selfiestickr.view.GestureTransformationView
-        android:id="@+id/stickerContainer"
+        android:id="@+id/stickerView"
         android:layout_width="match_parent"
         android:layout_height="match_parent"/>
 
