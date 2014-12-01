@@ -12,11 +12,14 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.Toast;
 
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 
 import jalal.test.com.selfiestickr.R;
 import jalal.test.com.selfiestickr.adapter.StickerPagerAdapter;
@@ -29,14 +32,18 @@ import jalal.test.com.selfiestickr.view.GestureTransformationView;
  */
 public class EditorFragment extends Fragment implements OnStickerPagerItemClickListener {
 
-    GestureTransformationView mStickerContainer;
-    ImageView mImageView;
+    private static final String BUNDLE_IMAGE_DATA = "imageUri";
+    private static final String BUNDLE_IS_DONE = "isDoneEditing";
 
+    private List<GestureTransformationView> mStickersList =
+            new ArrayList<GestureTransformationView>();
+
+    ImageView mImageView;
+    FrameLayout mContainer;
     StickerPagerAdapter mStickerPagerAdapter;
 
-    private static final String BUNDLE_IMAGE_DATA = "image_uri";
-
     private Uri mUri;
+    private boolean mIsDoneEditing = true;
 
     public static EditorFragment newInstance(Uri data) {
         EditorFragment fragment = new EditorFragment();
@@ -56,6 +63,7 @@ public class EditorFragment extends Fragment implements OnStickerPagerItemClickL
         }
         else if(savedInstanceState != null) {
             mUri = savedInstanceState.getParcelable(BUNDLE_IMAGE_DATA);
+            mIsDoneEditing = savedInstanceState.getBoolean(BUNDLE_IS_DONE);
         }
     }
 
@@ -64,7 +72,7 @@ public class EditorFragment extends Fragment implements OnStickerPagerItemClickL
                              Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_editor, container, false);
 
-        mStickerContainer = (GestureTransformationView)view.findViewById(R.id.stickerContainer);
+        mContainer = (FrameLayout)view.findViewById(R.id.container);
 
         mStickerPagerAdapter = new StickerPagerAdapter(getActivity());
         mStickerPagerAdapter.setOnStickerClickListener(this);
@@ -89,33 +97,65 @@ public class EditorFragment extends Fragment implements OnStickerPagerItemClickL
             }
         });
 
+        Button okButton = (Button)view.findViewById(R.id.okButton);
+        okButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                mIsDoneEditing = true;
+            }
+        });
+
         return  view;
     }
 
     @Override
     public void onStickerPagerItemClick(int position) {
         int stickerId = mStickerPagerAdapter.getStickers()[position];
-        mStickerContainer.setStickrDrawable(getResources().getDrawable(stickerId));
+
+        if(mIsDoneEditing) {
+            addNewSticker();
+            mIsDoneEditing = false;
+        }
+
+        GestureTransformationView sticker = mStickersList.get(mStickersList.size() - 1);
+        sticker.setStickrDrawable(getResources().getDrawable(stickerId));
+    }
+
+    private void addNewSticker() {
+        GestureTransformationView newSticker = new GestureTransformationView(getActivity());
+        FrameLayout.LayoutParams params = new FrameLayout.LayoutParams(
+                FrameLayout.LayoutParams.MATCH_PARENT, FrameLayout.LayoutParams.MATCH_PARENT);
+        newSticker.setLayoutParams(params);
+
+        mStickersList.add(newSticker);
+        mContainer.addView(newSticker);
     }
 
     public void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
         outState.putParcelable(BUNDLE_IMAGE_DATA, mUri);
+        outState.putBoolean(BUNDLE_IS_DONE, mIsDoneEditing);
+    }
+
+    private void addStickersToCanvas(Canvas canvas, int width, int height) {
+        for(GestureTransformationView sticker : mStickersList) {
+            sticker.buildDrawingCache(true);
+            Bitmap stickerBitmap = Bitmap.createScaledBitmap(sticker.getDrawingCache(true),
+                    width, height, false);
+            sticker.destroyDrawingCache();
+
+            canvas.drawBitmap(stickerBitmap, 0, 0, null);
+        }
     }
 
     private void saveImage() {
         Bitmap imageBitmap = ((BitmapDrawable) mImageView.getDrawable()).getBitmap();
 
-        mStickerContainer.buildDrawingCache(true);
-        Bitmap stickerBitmap = Bitmap.createScaledBitmap(mStickerContainer.getDrawingCache(true),
-                imageBitmap.getWidth(), imageBitmap.getHeight(), false);
-        mStickerContainer.destroyDrawingCache();
-
         Bitmap bmOverlay = Bitmap.createBitmap(imageBitmap.getWidth(),
                 imageBitmap.getHeight(), imageBitmap.getConfig());
         Canvas canvas = new Canvas(bmOverlay);
         canvas.drawBitmap(imageBitmap, new Matrix(), null);
-        canvas.drawBitmap(stickerBitmap, 0, 0, null);
+        addStickersToCanvas(canvas, imageBitmap.getWidth(), imageBitmap.getHeight());
 
         FileOutputStream out = null;
         try {

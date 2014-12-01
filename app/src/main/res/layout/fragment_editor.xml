@@ -2,14 +2,13 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
-
-
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:orientation="vertical">
 
         <FrameLayout
+            android:id="@+id/container"
             android:layout_width="match_parent"
             android:layout_height="0dp"
             android:layout_weight="1">
@@ -22,7 +21,7 @@
                 android:background="@android:color/darker_gray"/>
 
             <jalal.test.com.selfiestickr.view.GestureTransformationView
-                android:id="@+id/stickerContainer"
+                android:id="@+id/sticker"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"/>
         </FrameLayout>
@@ -42,6 +41,15 @@
         android:layout_alignParentTop="true"
         android:layout_alignParentRight="true"
         android:text="Save"/>
+
+    <Button
+        android:id="@+id/okButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_margin="8dp"
+        android:layout_alignParentTop="true"
+        android:layout_toLeftOf="@id/saveButton"
+        android:text="Ok"/>
 </RelativeLayout>
 
 
