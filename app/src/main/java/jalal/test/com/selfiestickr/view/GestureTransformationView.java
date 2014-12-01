@@ -69,6 +69,7 @@ public class GestureTransformationView extends View {
     public GestureTransformationView(Context context, AttributeSet attrs, int defStyleAttr) {
         super(context, attrs, defStyleAttr);
         mScaleDetector = new ScaleGestureDetector(context, new ScaleListener());
+        setDrawingCacheEnabled(true);
     }
 
     public void setStickrDrawable(Drawable drawable) {

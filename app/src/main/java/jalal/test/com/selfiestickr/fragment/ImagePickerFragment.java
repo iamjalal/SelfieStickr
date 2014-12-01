@@ -8,7 +8,6 @@ import android.database.Cursor;
 import android.media.MediaScannerConnection;
 import android.net.Uri;
 import android.os.Bundle;
-import android.os.Environment;
 import android.provider.MediaStore;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -18,10 +17,9 @@ import android.widget.Button;
 
 import java.io.File;
 import java.io.IOException;
-import java.text.SimpleDateFormat;
-import java.util.Date;
 
 import jalal.test.com.selfiestickr.R;
+import jalal.test.com.selfiestickr.util.FileUtils;
 
 
 public class ImagePickerFragment extends Fragment {
@@ -75,7 +73,7 @@ public class ImagePickerFragment extends Fragment {
 
                     File photoFile = null;
                     try {
-                        photoFile = createImageFile();
+                        photoFile = FileUtils.getFile(getActivity());
                     } catch (IOException e) {
                         Log.e(TAG, "Could not create file");
                     }
@@ -117,18 +115,6 @@ public class ImagePickerFragment extends Fragment {
                         }
                     });
         }
-    }
-
-    private File createImageFile() throws IOException {
-        String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss").format(new Date());
-        String imageFileName = "_" + timeStamp + "_";
-        File storageDir = new File(Environment.getExternalStoragePublicDirectory(
-                Environment.DIRECTORY_PICTURES) +
-                "/" + getResources().getString(R.string.storage_directory)+ "/");
-        if(!storageDir.exists()) {
-            storageDir.mkdirs();
-        }
-        return File.createTempFile(imageFileName, ".jpg", storageDir);
     }
 
     private Uri getImageUri() {
