@@ -105,20 +105,31 @@ public class EditorFragment extends Fragment implements OnStickerPagerItemClickL
             }
         });
 
+        Button undoButton = (Button)view.findViewById(R.id.undoButton);
+        undoButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                undo();
+            }
+        });
+
         return  view;
     }
 
     @Override
     public void onStickerPagerItemClick(int position) {
-        int stickerId = mStickerPagerAdapter.getStickers()[position];
 
         if(mIsDoneEditing) {
             addNewSticker();
             mIsDoneEditing = false;
         }
 
-        GestureTransformationView sticker = mStickersList.get(mStickersList.size() - 1);
-        sticker.setStickrDrawable(getResources().getDrawable(stickerId));
+        int stickerId = mStickerPagerAdapter.getStickers()[position];
+
+        if(!mStickersList.isEmpty()) {
+            GestureTransformationView sticker = mStickersList.get(mStickersList.size() - 1);
+            sticker.setStickrDrawable(getResources().getDrawable(stickerId));
+        }
     }
 
     private void addNewSticker() {
@@ -129,23 +140,6 @@ public class EditorFragment extends Fragment implements OnStickerPagerItemClickL
 
         mStickersList.add(newSticker);
         mContainer.addView(newSticker);
-    }
-
-    public void onSaveInstanceState(Bundle outState) {
-        super.onSaveInstanceState(outState);
-        outState.putParcelable(BUNDLE_IMAGE_DATA, mUri);
-        outState.putBoolean(BUNDLE_IS_DONE, mIsDoneEditing);
-    }
-
-    private void addStickersToCanvas(Canvas canvas, int width, int height) {
-        for(GestureTransformationView sticker : mStickersList) {
-            sticker.buildDrawingCache(true);
-            Bitmap stickerBitmap = Bitmap.createScaledBitmap(sticker.getDrawingCache(true),
-                    width, height, false);
-            sticker.destroyDrawingCache();
-
-            canvas.drawBitmap(stickerBitmap, 0, 0, null);
-        }
     }
 
     private void saveImage() {
@@ -172,5 +166,31 @@ public class EditorFragment extends Fragment implements OnStickerPagerItemClickL
                 e.printStackTrace();
             }
         }
+    }
+
+    private void addStickersToCanvas(Canvas canvas, int width, int height) {
+        for(GestureTransformationView sticker : mStickersList) {
+            sticker.buildDrawingCache(true);
+            Bitmap stickerBitmap = Bitmap.createScaledBitmap(sticker.getDrawingCache(true),
+                    width, height, false);
+            sticker.destroyDrawingCache();
+
+            canvas.drawBitmap(stickerBitmap, 0, 0, null);
+        }
+    }
+
+    private void undo() {
+        if(!mStickersList.isEmpty()) {
+            GestureTransformationView sticker = mStickersList.get(mStickersList.size() - 1);
+            mContainer.removeView(sticker);
+            mStickersList.remove(sticker);
+            mIsDoneEditing = true;
+        }
+    }
+
+    public void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
+        outState.putParcelable(BUNDLE_IMAGE_DATA, mUri);
+        outState.putBoolean(BUNDLE_IS_DONE, mIsDoneEditing);
     }
 }
