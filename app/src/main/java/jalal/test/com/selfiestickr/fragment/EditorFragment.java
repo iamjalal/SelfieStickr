@@ -1,6 +1,7 @@
 package jalal.test.com.selfiestickr.fragment;
 
 import android.app.Fragment;
+import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.Matrix;
@@ -8,6 +9,7 @@ import android.graphics.drawable.BitmapDrawable;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.view.ViewPager;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -16,6 +18,7 @@ import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.Toast;
 
+import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -23,6 +26,7 @@ import java.util.List;
 
 import jalal.test.com.selfiestickr.R;
 import jalal.test.com.selfiestickr.adapter.StickerPagerAdapter;
+import jalal.test.com.selfiestickr.interf.OnStickerMoveListener;
 import jalal.test.com.selfiestickr.interf.OnStickerPagerItemClickListener;
 import jalal.test.com.selfiestickr.util.FileUtils;
 import jalal.test.com.selfiestickr.view.GestureTransformationView;
@@ -30,10 +34,11 @@ import jalal.test.com.selfiestickr.view.GestureTransformationView;
 /**
  * Fragment in charge of all the image edition and overlay selection
  */
-public class EditorFragment extends Fragment implements OnStickerPagerItemClickListener {
+public class EditorFragment extends Fragment implements OnStickerPagerItemClickListener, OnStickerMoveListener {
 
     private static final String BUNDLE_IMAGE_DATA = "imageUri";
-    private static final String BUNDLE_IS_DONE = "isDoneEditing";
+    private static final String BUNDLE_IS_EDITING = "isEditing";
+    private static final String BUNDLE_IS_SAVED = "isSaved";
 
     private List<GestureTransformationView> mStickersList =
             new ArrayList<GestureTransformationView>();
@@ -43,7 +48,10 @@ public class EditorFragment extends Fragment implements OnStickerPagerItemClickL
     StickerPagerAdapter mStickerPagerAdapter;
 
     private Uri mUri;
-    private boolean mIsDoneEditing = true;
+    private Uri mFileUri;
+
+    private boolean mIsEditing;
+    private boolean mIsSaved;
 
     public static EditorFragment newInstance(Uri data) {
         EditorFragment fragment = new EditorFragment();
@@ -63,7 +71,8 @@ public class EditorFragment extends Fragment implements OnStickerPagerItemClickL
         }
         else if(savedInstanceState != null) {
             mUri = savedInstanceState.getParcelable(BUNDLE_IMAGE_DATA);
-            mIsDoneEditing = savedInstanceState.getBoolean(BUNDLE_IS_DONE);
+            mIsEditing = savedInstanceState.getBoolean(BUNDLE_IS_EDITING);
+            mIsSaved = savedInstanceState.getBoolean(BUNDLE_IS_SAVED);
         }
     }
 
@@ -101,7 +110,7 @@ public class EditorFragment extends Fragment implements OnStickerPagerItemClickL
         okButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                mIsDoneEditing = true;
+                mIsEditing = false;
             }
         });
 
@@ -113,15 +122,31 @@ public class EditorFragment extends Fragment implements OnStickerPagerItemClickL
             }
         });
 
+        Button shareButton = (Button)view.findViewById(R.id.shareButton);
+        shareButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                new Thread(new Runnable() {
+                    @Override
+                    public void run() {
+                        synchronized (this) {
+                            saveImage();
+                            shareImage();
+                        }
+                    }
+                }).start();
+            }
+        });
+
         return  view;
     }
 
     @Override
     public void onStickerPagerItemClick(int position) {
 
-        if(mIsDoneEditing) {
+        if(!mIsEditing) {
             addNewSticker();
-            mIsDoneEditing = false;
+            mIsEditing = true;
         }
 
         int stickerId = mStickerPagerAdapter.getStickers()[position];
@@ -132,17 +157,30 @@ public class EditorFragment extends Fragment implements OnStickerPagerItemClickL
         }
     }
 
+    @Override
+    public void onStickerMove() {
+        mIsSaved = false;
+    }
+
     private void addNewSticker() {
         GestureTransformationView newSticker = new GestureTransformationView(getActivity());
         FrameLayout.LayoutParams params = new FrameLayout.LayoutParams(
                 FrameLayout.LayoutParams.MATCH_PARENT, FrameLayout.LayoutParams.MATCH_PARENT);
         newSticker.setLayoutParams(params);
+        newSticker.addOnStickerMoveListener(this);
 
         mStickersList.add(newSticker);
         mContainer.addView(newSticker);
     }
 
     private void saveImage() {
+
+        if(mFileUri != null && mIsSaved) {
+            return;
+        }
+
+        Log.v("STICKR", "Saving...");
+
         Bitmap imageBitmap = ((BitmapDrawable) mImageView.getDrawable()).getBitmap();
 
         Bitmap bmOverlay = Bitmap.createBitmap(imageBitmap.getWidth(),
@@ -153,7 +191,9 @@ public class EditorFragment extends Fragment implements OnStickerPagerItemClickL
 
         FileOutputStream out = null;
         try {
-            out = new FileOutputStream(FileUtils.getFile(getActivity()));
+            File file = FileUtils.getFile(getActivity());
+            mFileUri = Uri.fromFile(file);
+            out = new FileOutputStream(file);
             bmOverlay.compress(Bitmap.CompressFormat.PNG, 100, out);
         } catch (Exception e) {
             e.printStackTrace();
@@ -161,6 +201,8 @@ public class EditorFragment extends Fragment implements OnStickerPagerItemClickL
             try {
                 if (out != null) {
                     out.close();
+                    mIsSaved = true;
+                    Log.v("STICKR", "SAVED!!!");
                 }
             } catch (IOException e) {
                 e.printStackTrace();
@@ -184,13 +226,22 @@ public class EditorFragment extends Fragment implements OnStickerPagerItemClickL
             GestureTransformationView sticker = mStickersList.get(mStickersList.size() - 1);
             mContainer.removeView(sticker);
             mStickersList.remove(sticker);
-            mIsDoneEditing = true;
+            mIsEditing = true;
         }
+    }
+
+    private void shareImage() {
+        Log.v("STICKR", "Sharing...");
+        Intent share = new Intent(Intent.ACTION_SEND);
+        share.setType("image/*");
+        share.putExtra(Intent.EXTRA_STREAM, mFileUri);
+        startActivity(Intent.createChooser(share, "Share image"));
     }
 
     public void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
         outState.putParcelable(BUNDLE_IMAGE_DATA, mUri);
-        outState.putBoolean(BUNDLE_IS_DONE, mIsDoneEditing);
+        outState.putBoolean(BUNDLE_IS_EDITING, mIsEditing);
+        outState.putBoolean(BUNDLE_IS_SAVED, mIsSaved);
     }
 }

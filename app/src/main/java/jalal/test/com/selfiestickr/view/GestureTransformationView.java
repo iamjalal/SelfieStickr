@@ -10,6 +10,8 @@ import android.view.MotionEvent;
 import android.view.ScaleGestureDetector;
 import android.view.View;
 
+import jalal.test.com.selfiestickr.interf.OnStickerMoveListener;
+
 /**
  * Custom {@link android.view.View} class that responds to different gestures to transform
  * a {@link android.graphics.Bitmap}. The gestures are:
@@ -58,6 +60,8 @@ public class GestureTransformationView extends View {
     private float mScaleFactor = 1.f;
     private boolean isScaling;
 
+    private OnStickerMoveListener mOnStickerMoveListener;
+
     public GestureTransformationView(Context context) {
         this(context, null, 0);
     }
@@ -76,6 +80,10 @@ public class GestureTransformationView extends View {
         mDrawable = drawable;
         mDrawable.setBounds(0, 0, mDrawable.getIntrinsicWidth()/2, mDrawable.getIntrinsicHeight()/2);
         invalidate();
+    }
+
+    public void addOnStickerMoveListener(OnStickerMoveListener listener) {
+        mOnStickerMoveListener = listener;
     }
 
     @Override
@@ -129,6 +137,10 @@ public class GestureTransformationView extends View {
             }
 
             case MotionEvent.ACTION_MOVE: {
+
+                if(mOnStickerMoveListener != null) {
+                    mOnStickerMoveListener.onStickerMove();
+                }
 
                 //Info from first pointer
                 final int pointerIndex = ev.findPointerIndex(mActivePointerId);
