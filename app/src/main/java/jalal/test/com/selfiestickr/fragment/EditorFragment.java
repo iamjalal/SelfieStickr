@@ -1,5 +1,7 @@
 package jalal.test.com.selfiestickr.fragment;
 
+import android.animation.ArgbEvaluator;
+import android.animation.ValueAnimator;
 import android.app.Fragment;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
@@ -8,9 +10,11 @@ import android.graphics.drawable.BitmapDrawable;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.view.ViewPager;
+import android.support.v7.graphics.Palette;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.animation.AccelerateInterpolator;
 import android.widget.Button;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
@@ -34,6 +38,8 @@ public class EditorFragment extends Fragment implements OnStickerPagerItemClickL
 
     private static final String BUNDLE_IMAGE_DATA = "imageUri";
     private static final String BUNDLE_IS_DONE = "isDoneEditing";
+
+    private static final int BACKGROUND_COLOR_ANIM_DURATION = 650;
 
     private List<GestureTransformationView> mStickersList =
             new ArrayList<GestureTransformationView>();
@@ -82,6 +88,7 @@ public class EditorFragment extends Fragment implements OnStickerPagerItemClickL
 
         mImageView = (ImageView)view.findViewById(R.id.image);
         mImageView.setImageURI(mUri);
+        setPaletteBackground(mImageView);
 
         Button saveButton = (Button)view.findViewById(R.id.saveButton);
         saveButton.setOnClickListener(new View.OnClickListener() {
@@ -186,6 +193,31 @@ public class EditorFragment extends Fragment implements OnStickerPagerItemClickL
             mStickersList.remove(sticker);
             mIsDoneEditing = true;
         }
+    }
+
+    private void setPaletteBackground(final ImageView image) {
+
+        Bitmap bitmap = ((BitmapDrawable)image.getDrawable()).getBitmap();
+        Palette.generateAsync(bitmap, new Palette.PaletteAsyncListener() {
+            @Override
+            public void onGenerated(Palette palette) {
+
+                int colorFrom = getResources().getColor(android.R.color.darker_gray);
+                int colorTo = palette.getMutedColor(android.R.color.darker_gray);
+                ValueAnimator colorAnimation = ValueAnimator.ofObject(new ArgbEvaluator(), colorFrom, colorTo);
+                colorAnimation.setDuration(BACKGROUND_COLOR_ANIM_DURATION);
+                colorAnimation.setInterpolator(new AccelerateInterpolator());
+                colorAnimation.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
+
+                    @Override
+                    public void onAnimationUpdate(ValueAnimator animator) {
+                        image.setBackgroundColor((Integer)animator.getAnimatedValue());
+                    }
+
+                });
+                colorAnimation.start();
+            }
+        });
     }
 
     public void onSaveInstanceState(Bundle outState) {
