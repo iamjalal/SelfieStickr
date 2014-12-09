@@ -11,7 +11,6 @@ import android.graphics.drawable.BitmapDrawable;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.view.ViewPager;
-import android.util.Log;
 import android.support.v7.graphics.Palette;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -136,10 +135,8 @@ public class EditorFragment extends Fragment implements OnStickerPagerItemClickL
                 new Thread(new Runnable() {
                     @Override
                     public void run() {
-                        synchronized (this) {
-                            saveImage();
-                            shareImage();
-                        }
+                        saveImage();
+                        share();
                     }
                 }).start();
             }
@@ -186,10 +183,7 @@ public class EditorFragment extends Fragment implements OnStickerPagerItemClickL
             return;
         }
 
-        Log.v("STICKR", "Saving...");
-
         Bitmap imageBitmap = ((BitmapDrawable) mImageView.getDrawable()).getBitmap();
-
         Bitmap bmOverlay = Bitmap.createBitmap(imageBitmap.getWidth(),
                 imageBitmap.getHeight(), imageBitmap.getConfig());
         Canvas canvas = new Canvas(bmOverlay);
@@ -209,7 +203,6 @@ public class EditorFragment extends Fragment implements OnStickerPagerItemClickL
                 if (out != null) {
                     out.close();
                     mIsSaved = true;
-                    Log.v("STICKR", "SAVED!!!");
                 }
             } catch (IOException e) {
                 e.printStackTrace();
@@ -237,13 +230,13 @@ public class EditorFragment extends Fragment implements OnStickerPagerItemClickL
         }
     }
 
-    private void shareImage() {
-        Log.v("STICKR", "Sharing...");
+    private void share() {
         Intent share = new Intent(Intent.ACTION_SEND);
         share.setType("image/*");
         share.putExtra(Intent.EXTRA_STREAM, mFileUri);
         startActivity(Intent.createChooser(share, "Share image"));
     }
+
     private void setPaletteBackground(final ImageView image) {
 
         Bitmap bitmap = ((BitmapDrawable) image.getDrawable()).getBitmap();
