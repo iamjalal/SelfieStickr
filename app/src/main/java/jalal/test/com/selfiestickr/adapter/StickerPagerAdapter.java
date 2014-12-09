@@ -16,13 +16,24 @@ import jalal.test.com.selfiestickr.interf.OnStickerPagerItemClickListener;
  */
 public class StickerPagerAdapter extends PagerAdapter {
 
-    private static final int NUM_STICKERS = 2;
+    private static final int NUM_STICKERS = 4;
     private final Context mContext;
     private OnStickerPagerItemClickListener mStickerClickLisneter;
 
+    private final int[] mThumbs = {
+        R.drawable.thumb_mexico_01, R.drawable.thumb_mexico_02, R.drawable.thumb_mexico_03,
+        R.drawable.thumb_mexico_04, R.drawable.thumb_mexico_05, R.drawable.thumb_mexico_06,
+        R.drawable.thumb_mexico_07, R.drawable.thumb_mexico_08, R.drawable.thumb_mexico_09,
+        R.drawable.thumb_mexico_10, R.drawable.thumb_mexico_11, R.drawable.thumb_mexico_12,
+        R.drawable.thumb_mexico_13
+    };
+
     private final int[] mStickers = {
-        R.drawable.sample_stick_1, R.drawable.sample_stick_2,
-        R.drawable.sample_stick_1, R.drawable.sample_stick_2
+            R.drawable.mexico_01, R.drawable.mexico_02, R.drawable.mexico_03,
+            R.drawable.mexico_04, R.drawable.mexico_05, R.drawable.mexico_06,
+            R.drawable.mexico_07, R.drawable.mexico_08, R.drawable.mexico_09,
+            R.drawable.mexico_10, R.drawable.mexico_11, R.drawable.mexico_12,
+            R.drawable.mexico_13
     };
 
     public StickerPagerAdapter(Context context) {
@@ -40,7 +51,7 @@ public class StickerPagerAdapter extends PagerAdapter {
         View view = inflater.inflate(R.layout.item_sticker_pager, null);
 
         ImageView stickerImage = (ImageView) view.findViewById(R.id.sticker_image);
-        stickerImage.setImageDrawable(mContext.getResources().getDrawable(mStickers[position]));
+        stickerImage.setImageDrawable(mContext.getResources().getDrawable(mThumbs[position]));
 
         TextView stickerName = (TextView) view.findViewById(R.id.sticker_name);
         stickerName.setText(position+"");
@@ -83,6 +94,6 @@ public class StickerPagerAdapter extends PagerAdapter {
     }
 
     public int[] getStickers() {
-        return mStickers;
+        return mThumbs;
     }
 }

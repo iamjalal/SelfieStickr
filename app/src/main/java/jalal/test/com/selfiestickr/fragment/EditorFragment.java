@@ -43,7 +43,7 @@ public class EditorFragment extends Fragment implements OnStickerPagerItemClickL
     private static final String BUNDLE_IS_EDITING = "isEditing";
     private static final String BUNDLE_IS_SAVED = "isSaved";
 
-    private static final int BACKGROUND_COLOR_ANIM_DURATION = 650;
+    private static final int BACKGROUND_COLOR_ANIM_DURATION = 500;
 
     private List<GestureTransformationView> mStickersList =
             new ArrayList<GestureTransformationView>();
@@ -245,8 +245,8 @@ public class EditorFragment extends Fragment implements OnStickerPagerItemClickL
             public void onGenerated(Palette palette) {
 
                 int colorFrom = getResources().getColor(android.R.color.darker_gray);
-                int colorTo = palette.getMutedColor(android.R.color.darker_gray);
-                ValueAnimator colorAnimation = ValueAnimator.ofObject(new ArgbEvaluator(), colorFrom, colorTo);
+                int colorTo = palette.getDarkMutedColor(android.R.color.darker_gray);
+                final ValueAnimator colorAnimation = ValueAnimator.ofObject(new ArgbEvaluator(), colorFrom, colorTo);
                 colorAnimation.setDuration(BACKGROUND_COLOR_ANIM_DURATION);
                 colorAnimation.setInterpolator(new AccelerateInterpolator());
                 colorAnimation.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {

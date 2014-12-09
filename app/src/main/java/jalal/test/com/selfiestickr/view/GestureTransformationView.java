@@ -78,7 +78,7 @@ public class GestureTransformationView extends View {
 
     public void setStickrDrawable(Drawable drawable) {
         mDrawable = drawable;
-        mDrawable.setBounds(0, 0, mDrawable.getIntrinsicWidth()/2, mDrawable.getIntrinsicHeight()/2);
+        mDrawable.setBounds(0, 0, mDrawable.getIntrinsicWidth(), mDrawable.getIntrinsicHeight());
         invalidate();
     }
 
