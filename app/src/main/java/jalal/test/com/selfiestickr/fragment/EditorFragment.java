@@ -28,16 +28,20 @@ import java.util.ArrayList;
 import java.util.List;
 
 import jalal.test.com.selfiestickr.R;
+import jalal.test.com.selfiestickr.adapter.StickerCategoryPagerAdapter;
 import jalal.test.com.selfiestickr.adapter.StickerPagerAdapter;
+import jalal.test.com.selfiestickr.interf.OnCategorySelectListener;
 import jalal.test.com.selfiestickr.interf.OnStickerMoveListener;
 import jalal.test.com.selfiestickr.interf.OnStickerPagerItemClickListener;
+import jalal.test.com.selfiestickr.model.StickerCategory;
 import jalal.test.com.selfiestickr.util.FileUtils;
 import jalal.test.com.selfiestickr.view.GestureTransformationView;
 
 /**
  * Fragment in charge of all the image edition and overlay selection
  */
-public class EditorFragment extends Fragment implements OnStickerPagerItemClickListener, OnStickerMoveListener {
+public class EditorFragment extends Fragment implements OnStickerPagerItemClickListener,
+        OnStickerMoveListener, OnCategorySelectListener {
 
     private static final String BUNDLE_IMAGE_DATA = "imageUri";
     private static final String BUNDLE_IS_EDITING = "isEditing";
@@ -48,8 +52,10 @@ public class EditorFragment extends Fragment implements OnStickerPagerItemClickL
     private List<GestureTransformationView> mStickersList =
             new ArrayList<GestureTransformationView>();
 
-    ImageView mImageView;
-    FrameLayout mContainer;
+    private ImageView mImageView;
+    private FrameLayout mContainer;
+    private ViewPager mStickerPager;
+
     StickerPagerAdapter mStickerPagerAdapter;
 
     private Uri mUri;
@@ -90,9 +96,12 @@ public class EditorFragment extends Fragment implements OnStickerPagerItemClickL
 
         mStickerPagerAdapter = new StickerPagerAdapter(getActivity());
         mStickerPagerAdapter.setOnStickerClickListener(this);
+        mStickerPager = (ViewPager)view.findViewById(R.id.stickerPager);
 
-        ViewPager pager = (ViewPager)view.findViewById(R.id.pager);
-        pager.setAdapter(mStickerPagerAdapter);
+        StickerCategoryPagerAdapter categoryPagerAdapter = new StickerCategoryPagerAdapter(getActivity());
+        categoryPagerAdapter.setCategorySelectionListener(this);
+        ViewPager categoryPager = (ViewPager)view.findViewById(R.id.categoryPager);
+        categoryPager.setAdapter(categoryPagerAdapter);
 
         mImageView = (ImageView)view.findViewById(R.id.image);
         mImageView.setImageURI(mUri);
@@ -146,18 +155,16 @@ public class EditorFragment extends Fragment implements OnStickerPagerItemClickL
     }
 
     @Override
-    public void onStickerPagerItemClick(int position) {
+    public void onStickerPagerItemClick(int id) {
 
         if(!mIsEditing) {
             addNewSticker();
             mIsEditing = true;
         }
 
-        int stickerId = mStickerPagerAdapter.getStickers()[position];
-
         if(!mStickersList.isEmpty()) {
             GestureTransformationView sticker = mStickersList.get(mStickersList.size() - 1);
-            sticker.setStickrDrawable(getResources().getDrawable(stickerId));
+            sticker.setStickrDrawable(getResources().getDrawable(id));
         }
     }
 
@@ -267,5 +274,11 @@ public class EditorFragment extends Fragment implements OnStickerPagerItemClickL
         outState.putParcelable(BUNDLE_IMAGE_DATA, mUri);
         outState.putBoolean(BUNDLE_IS_EDITING, mIsEditing);
         outState.putBoolean(BUNDLE_IS_SAVED, mIsSaved);
+    }
+
+    @Override
+    public void onCategorySelected(StickerCategory category) {
+        mStickerPagerAdapter.setCategory(category);
+        mStickerPager.setAdapter(mStickerPagerAdapter);
     }
 }

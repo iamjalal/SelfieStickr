@@ -27,7 +27,13 @@
         </FrameLayout>
 
         <android.support.v4.view.ViewPager
-            android:id="@+id/pager"
+            android:id="@+id/categoryPager"
+            android:layout_width="match_parent"
+            android:layout_height="40dp"
+            android:background="@android:color/darker_gray"/>
+
+        <android.support.v4.view.ViewPager
+            android:id="@+id/stickerPager"
             android:layout_width="match_parent"
             android:layout_height="80dp" />
 
