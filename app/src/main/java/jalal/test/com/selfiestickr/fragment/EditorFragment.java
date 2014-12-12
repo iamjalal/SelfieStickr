@@ -57,6 +57,7 @@ public class EditorFragment extends Fragment implements OnStickerPagerItemClickL
     private ViewPager mStickerPager;
 
     StickerPagerAdapter mStickerPagerAdapter;
+    StickerCategoryPagerAdapter mCategoryPagerAdapter;
 
     private Uri mUri;
     private Uri mFileUri;
@@ -98,10 +99,10 @@ public class EditorFragment extends Fragment implements OnStickerPagerItemClickL
         mStickerPagerAdapter.setOnStickerClickListener(this);
         mStickerPager = (ViewPager)view.findViewById(R.id.stickerPager);
 
-        StickerCategoryPagerAdapter categoryPagerAdapter = new StickerCategoryPagerAdapter(getActivity());
-        categoryPagerAdapter.setCategorySelectionListener(this);
+        mCategoryPagerAdapter = new StickerCategoryPagerAdapter(getActivity());
+        mCategoryPagerAdapter.setCategorySelectionListener(this);
         ViewPager categoryPager = (ViewPager)view.findViewById(R.id.categoryPager);
-        categoryPager.setAdapter(categoryPagerAdapter);
+        categoryPager.setAdapter(mCategoryPagerAdapter);
 
         mImageView = (ImageView)view.findViewById(R.id.image);
         mImageView.setImageURI(mUri);
@@ -151,6 +152,7 @@ public class EditorFragment extends Fragment implements OnStickerPagerItemClickL
             }
         });
 
+        onCategorySelected(0);
         return  view;
     }
 
@@ -277,7 +279,8 @@ public class EditorFragment extends Fragment implements OnStickerPagerItemClickL
     }
 
     @Override
-    public void onCategorySelected(StickerCategory category) {
+    public void onCategorySelected(int position) {
+        StickerCategory category = mCategoryPagerAdapter.getCategories()[position];
         mStickerPagerAdapter.setCategory(category);
         mStickerPager.setAdapter(mStickerPagerAdapter);
     }

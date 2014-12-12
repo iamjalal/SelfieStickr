@@ -60,7 +60,7 @@ public class StickerCategoryPagerAdapter extends PagerAdapter {
     }
 
     @Override
-    public Object instantiateItem(ViewGroup container, int position) {
+    public Object instantiateItem(ViewGroup container, final int position) {
 
         LayoutInflater inflater = LayoutInflater.from(mContext);
         View view = inflater.inflate(R.layout.item_category_pager, null);
@@ -73,12 +73,16 @@ public class StickerCategoryPagerAdapter extends PagerAdapter {
         view.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                mCategorySelectListener.onCategorySelected(category);
+                mCategorySelectListener.onCategorySelected(position);
             }
         });
 
         container.addView(view);
 
         return view;
+    }
+
+    public StickerCategory[] getCategories() {
+        return mCategories;
     }
 }
