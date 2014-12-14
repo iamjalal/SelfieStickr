@@ -14,7 +14,7 @@ import jalal.test.com.selfiestickr.model.StickerCategory;
 /**
  * Created by jalals on 12/10/2014.
  */
-public class StickerCategoryPagerAdapter extends PagerAdapter {
+public class CategoryPagerAdapter extends PagerAdapter {
 
     private static final int NUM_CATEGORIES = 2;
 
@@ -23,10 +23,12 @@ public class StickerCategoryPagerAdapter extends PagerAdapter {
 
     private final StickerCategory[] mCategories = {
         new StickerCategory("mexico", 13),
-        new StickerCategory("comic", 15)
+        new StickerCategory("comic", 15),
+        new StickerCategory("mexico", 13),
+        new StickerCategory("comic", 13)
     };
 
-    public StickerCategoryPagerAdapter(Context context) {
+    public CategoryPagerAdapter(Context context) {
         mContext = context;
     }
 
@@ -65,7 +67,7 @@ public class StickerCategoryPagerAdapter extends PagerAdapter {
         LayoutInflater inflater = LayoutInflater.from(mContext);
         View view = inflater.inflate(R.layout.item_category_pager, null);
 
-        final StickerCategory category = mCategories[position];
+        StickerCategory category = mCategories[position];
 
         TextView stickerName = (TextView) view.findViewById(R.id.categoryName);
         stickerName.setText(category.id);

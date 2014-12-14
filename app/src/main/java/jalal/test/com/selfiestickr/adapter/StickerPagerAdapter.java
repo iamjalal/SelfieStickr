@@ -11,15 +11,13 @@ import jalal.test.com.selfiestickr.R;
 import jalal.test.com.selfiestickr.interf.OnStickerPagerItemClickListener;
 import jalal.test.com.selfiestickr.model.StickerCategory;
 
-/**
- * Created by jalals on 11/21/2014.
- */
+
 public class StickerPagerAdapter extends PagerAdapter {
 
     private static final int NUM_STICKERS = 4;
 
     private final Context mContext;
-    private OnStickerPagerItemClickListener mStickerClickLisneter;
+    private OnStickerPagerItemClickListener mStickerClickListener;
 
     private StickerCategory mCategory;
 
@@ -28,7 +26,7 @@ public class StickerPagerAdapter extends PagerAdapter {
     }
 
     public void setOnStickerClickListener(OnStickerPagerItemClickListener listener) {
-        mStickerClickLisneter = listener;
+        mStickerClickListener = listener;
     }
 
     public void setCategory(StickerCategory category) {
@@ -37,7 +35,7 @@ public class StickerPagerAdapter extends PagerAdapter {
     }
 
     @Override
-    public Object instantiateItem(ViewGroup container, final int position) {
+    public Object instantiateItem(ViewGroup container, int position) {
 
         LayoutInflater inflater = LayoutInflater.from(mContext);
         View view = inflater.inflate(R.layout.item_sticker_pager, null);
@@ -51,7 +49,7 @@ public class StickerPagerAdapter extends PagerAdapter {
         view.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                mStickerClickLisneter.onStickerPagerItemClick(stickerId);
+                mStickerClickListener.onStickerPagerItemClick(stickerId);
             }
         });
 

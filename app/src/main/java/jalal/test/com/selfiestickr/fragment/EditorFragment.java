@@ -28,7 +28,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import jalal.test.com.selfiestickr.R;
-import jalal.test.com.selfiestickr.adapter.StickerCategoryPagerAdapter;
+import jalal.test.com.selfiestickr.adapter.CategoryPagerAdapter;
 import jalal.test.com.selfiestickr.adapter.StickerPagerAdapter;
 import jalal.test.com.selfiestickr.interf.OnCategorySelectListener;
 import jalal.test.com.selfiestickr.interf.OnStickerMoveListener;
@@ -57,7 +57,7 @@ public class EditorFragment extends Fragment implements OnStickerPagerItemClickL
     private ViewPager mStickerPager;
 
     StickerPagerAdapter mStickerPagerAdapter;
-    StickerCategoryPagerAdapter mCategoryPagerAdapter;
+    CategoryPagerAdapter mCategoryPagerAdapter;
 
     private Uri mUri;
     private Uri mFileUri;
@@ -99,7 +99,7 @@ public class EditorFragment extends Fragment implements OnStickerPagerItemClickL
         mStickerPagerAdapter.setOnStickerClickListener(this);
         mStickerPager = (ViewPager)view.findViewById(R.id.stickerPager);
 
-        mCategoryPagerAdapter = new StickerCategoryPagerAdapter(getActivity());
+        mCategoryPagerAdapter = new CategoryPagerAdapter(getActivity());
         mCategoryPagerAdapter.setCategorySelectionListener(this);
         ViewPager categoryPager = (ViewPager)view.findViewById(R.id.categoryPager);
         categoryPager.setAdapter(mCategoryPagerAdapter);

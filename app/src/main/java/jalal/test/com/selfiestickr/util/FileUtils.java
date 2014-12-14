@@ -10,9 +10,7 @@ import java.util.Date;
 
 import jalal.test.com.selfiestickr.R;
 
-/**
- * Created by jalals on 12/1/2014.
- */
+
 public class FileUtils {
 
     public static File getFile(Context context) throws IOException {
