@@ -12,6 +12,7 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.view.ViewPager;
 import android.support.v7.graphics.Palette;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -19,6 +20,7 @@ import android.view.animation.AccelerateInterpolator;
 import android.widget.Button;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.Toast;
 
 import java.io.File;
@@ -36,6 +38,7 @@ import jalal.test.com.selfiestickr.interf.OnStickerPagerItemClickListener;
 import jalal.test.com.selfiestickr.model.StickerCategory;
 import jalal.test.com.selfiestickr.util.FileUtils;
 import jalal.test.com.selfiestickr.view.GestureTransformationView;
+import jalal.test.com.selfiestickr.view.ScreenSizeAwareImageView;
 
 /**
  * Fragment in charge of all the image edition and overlay selection
@@ -52,7 +55,7 @@ public class EditorFragment extends Fragment implements OnStickerPagerItemClickL
     private List<GestureTransformationView> mStickersList =
             new ArrayList<GestureTransformationView>();
 
-    private ImageView mImageView;
+    private ScreenSizeAwareImageView mImageView;
     private FrameLayout mContainer;
     private ViewPager mStickerPager;
 
@@ -104,8 +107,9 @@ public class EditorFragment extends Fragment implements OnStickerPagerItemClickL
         ViewPager categoryPager = (ViewPager)view.findViewById(R.id.categoryPager);
         categoryPager.setAdapter(mCategoryPagerAdapter);
 
-        mImageView = (ImageView)view.findViewById(R.id.image);
+        mImageView = (ScreenSizeAwareImageView)view.findViewById(R.id.image);
         mImageView.setImageURI(mUri);
+
         setPaletteBackground(mImageView);
 
         Button saveButton = (Button)view.findViewById(R.id.saveButton);
@@ -166,7 +170,7 @@ public class EditorFragment extends Fragment implements OnStickerPagerItemClickL
 
         if(!mStickersList.isEmpty()) {
             GestureTransformationView sticker = mStickersList.get(mStickersList.size() - 1);
-            sticker.setStickrDrawable(getResources().getDrawable(id));
+            sticker.setStickrDrawable(getResources().getDrawable(id), mImageView);
         }
     }
 
@@ -177,18 +181,18 @@ public class EditorFragment extends Fragment implements OnStickerPagerItemClickL
 
     private void addNewSticker() {
         GestureTransformationView newSticker = new GestureTransformationView(getActivity());
-        FrameLayout.LayoutParams params = new FrameLayout.LayoutParams(
-                FrameLayout.LayoutParams.MATCH_PARENT, FrameLayout.LayoutParams.MATCH_PARENT);
-        newSticker.setLayoutParams(params);
         newSticker.addOnStickerMoveListener(this);
 
+        Log.v("STICKER", mImageView.getScreenWidth()+" | "+mImageView.getScreenHeight()+mImageView.getMeasuredWidth()+" | "+mImageView.getMeasuredHeight());
+        LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(mImageView.getScreenWidth(), mImageView.getScreenHeight());
+        newSticker.setLayoutParams(params);
         mStickersList.add(newSticker);
         mContainer.addView(newSticker);
     }
 
     private void saveImage() {
 
-        if(mFileUri != null && mIsSaved) {
+        if(mIsSaved) {
             return;
         }
 
@@ -224,9 +228,8 @@ public class EditorFragment extends Fragment implements OnStickerPagerItemClickL
             sticker.buildDrawingCache(true);
             Bitmap stickerBitmap = Bitmap.createScaledBitmap(sticker.getDrawingCache(true),
                     width, height, false);
-            sticker.destroyDrawingCache();
-
             canvas.drawBitmap(stickerBitmap, 0, 0, null);
+            sticker.destroyDrawingCache();
         }
     }
 

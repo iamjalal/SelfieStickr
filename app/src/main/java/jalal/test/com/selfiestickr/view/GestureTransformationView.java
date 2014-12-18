@@ -9,6 +9,7 @@ import android.util.AttributeSet;
 import android.view.MotionEvent;
 import android.view.ScaleGestureDetector;
 import android.view.View;
+import android.widget.ImageView;
 
 import jalal.test.com.selfiestickr.interf.OnStickerMoveListener;
 
@@ -73,12 +74,14 @@ public class GestureTransformationView extends View {
     public GestureTransformationView(Context context, AttributeSet attrs, int defStyleAttr) {
         super(context, attrs, defStyleAttr);
         mScaleDetector = new ScaleGestureDetector(context, new ScaleListener());
-        setDrawingCacheEnabled(true);
     }
 
-    public void setStickrDrawable(Drawable drawable) {
+    public void setStickrDrawable(Drawable drawable, ImageView image) {
         mDrawable = drawable;
-        mDrawable.setBounds(0, 0, mDrawable.getIntrinsicWidth(), mDrawable.getIntrinsicHeight());
+        int dimen = Math.min(image.getHeight(), image.getWidth()) / 2;
+        int left = image.getWidth() / 2 - dimen / 2;
+        int top = image.getHeight() / 2 - dimen / 2;
+        mDrawable.setBounds(left, top, left + dimen, top + dimen);
         invalidate();
     }
 

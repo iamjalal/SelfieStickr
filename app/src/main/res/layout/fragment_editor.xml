@@ -13,17 +13,12 @@
             android:layout_height="0dp"
             android:layout_weight="1">
 
-            <ImageView
+            <jalal.test.com.selfiestickr.view.ScreenSizeAwareImageView
                 android:id="@+id/image"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:scaleType="fitCenter"
                 android:background="@android:color/darker_gray"/>
-
-            <jalal.test.com.selfiestickr.view.GestureTransformationView
-                android:id="@+id/sticker"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"/>
         </FrameLayout>
 
         <android.support.v4.view.ViewPager
