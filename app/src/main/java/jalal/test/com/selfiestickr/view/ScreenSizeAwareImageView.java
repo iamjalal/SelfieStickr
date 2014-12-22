@@ -4,6 +4,7 @@ import android.content.Context;
 import android.graphics.Matrix;
 import android.graphics.drawable.Drawable;
 import android.util.AttributeSet;
+import android.util.Log;
 import android.widget.ImageView;
 
 /**
@@ -14,29 +15,24 @@ public class ScreenSizeAwareImageView extends ImageView {
     private int mActualWidth;
     private int mActualHeight;
 
-    public ScreenSizeAwareImageView(Context context) {
-        this(context, null, 0);
-    }
-
     public ScreenSizeAwareImageView(Context context, AttributeSet attrs) {
-        this(context, attrs, 0);
-    }
-
-    public ScreenSizeAwareImageView(Context context, AttributeSet attrs, int defStyleAttr) {
-        super(context, attrs, defStyleAttr);
+        super(context, attrs);
     }
 
     @Override
     protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
         super.onMeasure(widthMeasureSpec, heightMeasureSpec);
+        this.setMeasuredDimension(widthMeasureSpec, heightMeasureSpec);
 
         // Get image matrix values and place them in an array
-        float[] f = new float[9];
-        getImageMatrix().getValues(f);
+        float[] values = new float[9];
+        getImageMatrix().getValues(values);
 
         // Extract the scale values using the constants (if aspect ratio maintained, scaleX == scaleY)
-        final float scaleX = f[Matrix.MSCALE_X];
-        final float scaleY = f[Matrix.MSCALE_Y];
+        final float scaleX = values[Matrix.MSCALE_X];
+        final float scaleY = values[Matrix.MSCALE_Y];
+
+        Log.v("STICKR", "Sx: "+scaleX+" Sy: "+scaleY);
 
         // Get the drawable (could also get the bitmap behind the drawable and getWidth/getHeight)
         final Drawable d = getDrawable();
@@ -46,6 +42,8 @@ public class ScreenSizeAwareImageView extends ImageView {
         // Calculate the actual dimensions
         mActualWidth = Math.round(origW * scaleX);
         mActualHeight = Math.round(origH * scaleY);
+
+        Log.v("STICKR", "w: "+mActualWidth+" h: "+mActualHeight);
     }
 
     public int getScreenWidth() {

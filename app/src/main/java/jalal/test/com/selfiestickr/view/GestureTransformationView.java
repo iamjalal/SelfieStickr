@@ -9,6 +9,8 @@ import android.util.AttributeSet;
 import android.view.MotionEvent;
 import android.view.ScaleGestureDetector;
 import android.view.View;
+import android.view.ViewGroup;
+import android.widget.FrameLayout;
 import android.widget.ImageView;
 
 import jalal.test.com.selfiestickr.interf.OnStickerMoveListener;
@@ -61,10 +63,14 @@ public class GestureTransformationView extends View {
     private float mScaleFactor = 1.f;
     private boolean isScaling;
 
+    private ScreenSizeAwareImageView mImage;
+
     private OnStickerMoveListener mOnStickerMoveListener;
 
-    public GestureTransformationView(Context context) {
+    public GestureTransformationView(Context context, ScreenSizeAwareImageView image) {
         this(context, null, 0);
+        mImage = image;
+        setBounds();
     }
 
     public GestureTransformationView(Context context, AttributeSet attrs) {
@@ -78,10 +84,11 @@ public class GestureTransformationView extends View {
 
     public void setStickrDrawable(Drawable drawable, ImageView image) {
         mDrawable = drawable;
-        int dimen = Math.min(image.getHeight(), image.getWidth()) / 2;
-        int left = image.getWidth() / 2 - dimen / 2;
-        int top = image.getHeight() / 2 - dimen / 2;
-        mDrawable.setBounds(left, top, left + dimen, top + dimen);
+
+        int top = (mImage.getScreenHeight() - drawable.getIntrinsicHeight()) / 2;
+        int left = (mImage.getScreenWidth() - drawable.getIntrinsicWidth()) / 2;
+
+        mDrawable.setBounds(left, top, left + drawable.getIntrinsicWidth(), top + drawable.getIntrinsicHeight());
         invalidate();
     }
 
@@ -92,10 +99,6 @@ public class GestureTransformationView extends View {
     @Override
     public void onDraw(Canvas canvas) {
         super.onDraw(canvas);
-
-        if(mDrawable == null) {
-            return;
-        }
 
         float centerX = mDrawable.getBounds().centerX();
         float centerY = mDrawable.getBounds().centerY();
@@ -286,5 +289,19 @@ public class GestureTransformationView extends View {
         double radiansInit = Math.atan2(deltaInit_y, deltaInit_x);
 
         return (float) Math.toDegrees(radiansInit);
+    }
+
+    private void setBounds() {
+
+        int top = Math.max(0, (mImage.getHeight() - mImage.getScreenHeight()) / 2);
+        int left = Math.max(0, (mImage.getWidth() - mImage.getScreenWidth()) / 2 );
+
+        FrameLayout.LayoutParams params = new FrameLayout.LayoutParams(
+                ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT);
+        params.topMargin = top;
+        params.leftMargin = left;
+        params.bottomMargin = top;
+        params.rightMargin = left;
+        this.setLayoutParams(params);
     }
 }

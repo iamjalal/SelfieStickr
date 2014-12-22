@@ -8,11 +8,11 @@ import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.Matrix;
 import android.graphics.drawable.BitmapDrawable;
+import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.view.ViewPager;
 import android.support.v7.graphics.Palette;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -20,7 +20,6 @@ import android.view.animation.AccelerateInterpolator;
 import android.widget.Button;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
-import android.widget.LinearLayout;
 import android.widget.Toast;
 
 import java.io.File;
@@ -163,31 +162,32 @@ public class EditorFragment extends Fragment implements OnStickerPagerItemClickL
     @Override
     public void onStickerPagerItemClick(int id) {
 
+        GestureTransformationView sticker = null;
+
         if(!mIsEditing) {
-            addNewSticker();
             mIsEditing = true;
+
+            sticker = new GestureTransformationView(getActivity(), mImageView);
+            sticker.addOnStickerMoveListener(this);
+
+            mStickersList.add(sticker);
+            mContainer.addView(sticker);
         }
 
-        if(!mStickersList.isEmpty()) {
-            GestureTransformationView sticker = mStickersList.get(mStickersList.size() - 1);
-            sticker.setStickrDrawable(getResources().getDrawable(id), mImageView);
+        Drawable stickerDrawable = getResources().getDrawable(id);
+        if(sticker != null) {
+            sticker.setStickrDrawable(stickerDrawable, mImageView);
         }
+        else if(mStickersList.size() > 0) {
+            mStickersList.get(mStickersList.size() - 1).setStickrDrawable(stickerDrawable, mImageView);
+        }
+
     }
 
     @Override
     public void onStickerMove() {
         mIsSaved = false;
-    }
-
-    private void addNewSticker() {
-        GestureTransformationView newSticker = new GestureTransformationView(getActivity());
-        newSticker.addOnStickerMoveListener(this);
-
-        Log.v("STICKER", mImageView.getScreenWidth()+" | "+mImageView.getScreenHeight()+mImageView.getMeasuredWidth()+" | "+mImageView.getMeasuredHeight());
-        LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(mImageView.getScreenWidth(), mImageView.getScreenHeight());
-        newSticker.setLayoutParams(params);
-        mStickersList.add(newSticker);
-        mContainer.addView(newSticker);
+        mIsEditing = true;
     }
 
     private void saveImage() {
@@ -238,7 +238,7 @@ public class EditorFragment extends Fragment implements OnStickerPagerItemClickL
             GestureTransformationView sticker = mStickersList.get(mStickersList.size() - 1);
             mContainer.removeView(sticker);
             mStickersList.remove(sticker);
-            mIsEditing = true;
+            mIsEditing = false;
         }
     }
 

@@ -22,9 +22,9 @@ public class CategoryPagerAdapter extends PagerAdapter {
     private OnCategorySelectListener mCategorySelectListener;
 
     private final StickerCategory[] mCategories = {
-        new StickerCategory("mexico", 13),
+        new StickerCategory("mexico", 14),
         new StickerCategory("comic", 15),
-        new StickerCategory("mexico", 13),
+        new StickerCategory("mexico", 14),
         new StickerCategory("comic", 13)
     };
 
