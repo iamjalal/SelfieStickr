@@ -176,10 +176,10 @@ public class EditorFragment extends Fragment implements OnStickerPagerItemClickL
 
         Drawable stickerDrawable = getResources().getDrawable(id);
         if(sticker != null) {
-            sticker.setStickrDrawable(stickerDrawable, mImageView);
+            sticker.setStickrDrawable(stickerDrawable);
         }
         else if(mStickersList.size() > 0) {
-            mStickersList.get(mStickersList.size() - 1).setStickrDrawable(stickerDrawable, mImageView);
+            mStickersList.get(mStickersList.size() - 1).setStickrDrawable(stickerDrawable);
         }
 
     }

@@ -9,9 +9,6 @@ import android.util.AttributeSet;
 import android.view.MotionEvent;
 import android.view.ScaleGestureDetector;
 import android.view.View;
-import android.view.ViewGroup;
-import android.widget.FrameLayout;
-import android.widget.ImageView;
 
 import jalal.test.com.selfiestickr.interf.OnStickerMoveListener;
 
@@ -70,7 +67,6 @@ public class GestureTransformationView extends View {
     public GestureTransformationView(Context context, ScreenSizeAwareImageView image) {
         this(context, null, 0);
         mImage = image;
-        setBounds();
     }
 
     public GestureTransformationView(Context context, AttributeSet attrs) {
@@ -82,13 +78,9 @@ public class GestureTransformationView extends View {
         mScaleDetector = new ScaleGestureDetector(context, new ScaleListener());
     }
 
-    public void setStickrDrawable(Drawable drawable, ImageView image) {
+    public void setStickrDrawable(Drawable drawable) {
         mDrawable = drawable;
-
-        int top = (mImage.getScreenHeight() - drawable.getIntrinsicHeight()) / 2;
-        int left = (mImage.getScreenWidth() - drawable.getIntrinsicWidth()) / 2;
-
-        mDrawable.setBounds(left, top, left + drawable.getIntrinsicWidth(), top + drawable.getIntrinsicHeight());
+        mDrawable.setBounds(0, 0, drawable.getIntrinsicWidth(), drawable.getIntrinsicHeight());
         invalidate();
     }
 
@@ -108,6 +100,9 @@ public class GestureTransformationView extends View {
         mCamera.rotateY(mYAxisRotation);
         mCamera.getMatrix(mMatrix);
         mCamera.restore();
+
+        mMatrix.preTranslate(-centerX, -centerY);
+        mMatrix.postTranslate(centerX, centerY);
 
         canvas.save();
         canvas.translate(mPosX, mPosY);
@@ -289,19 +284,5 @@ public class GestureTransformationView extends View {
         double radiansInit = Math.atan2(deltaInit_y, deltaInit_x);
 
         return (float) Math.toDegrees(radiansInit);
-    }
-
-    private void setBounds() {
-
-        int top = Math.max(0, (mImage.getHeight() - mImage.getScreenHeight()) / 2);
-        int left = Math.max(0, (mImage.getWidth() - mImage.getScreenWidth()) / 2 );
-
-        FrameLayout.LayoutParams params = new FrameLayout.LayoutParams(
-                ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT);
-        params.topMargin = top;
-        params.leftMargin = left;
-        params.bottomMargin = top;
-        params.rightMargin = left;
-        this.setLayoutParams(params);
     }
 }
