@@ -60,13 +60,10 @@ public class GestureTransformationView extends View {
     private float mScaleFactor = 1.f;
     private boolean isScaling;
 
-    private ScreenSizeAwareImageView mImage;
-
     private OnStickerMoveListener mOnStickerMoveListener;
 
-    public GestureTransformationView(Context context, ScreenSizeAwareImageView image) {
+    public GestureTransformationView(Context context) {
         this(context, null, 0);
-        mImage = image;
     }
 
     public GestureTransformationView(Context context, AttributeSet attrs) {
@@ -80,8 +77,6 @@ public class GestureTransformationView extends View {
 
     public void setStickrDrawable(Drawable drawable) {
         mDrawable = drawable;
-        mDrawable.setBounds(0, 0, drawable.getIntrinsicWidth(), drawable.getIntrinsicHeight());
-        invalidate();
     }
 
     public void addOnStickerMoveListener(OnStickerMoveListener listener) {
@@ -112,6 +107,15 @@ public class GestureTransformationView extends View {
 
         mDrawable.draw(canvas);
         canvas.restore();
+    }
+
+    @Override
+    protected void onLayout(boolean changed, int l, int t, int r, int b) {
+        super.onLayout(changed, l, t, r, b);
+
+        int left = (getMeasuredWidth() - mDrawable.getIntrinsicWidth()) / 2;
+        int top = (getMeasuredHeight() - mDrawable.getIntrinsicHeight()) / 2;
+        mDrawable.setBounds(left, top, left + mDrawable.getIntrinsicWidth(), top + mDrawable.getIntrinsicHeight());
     }
 
     @Override

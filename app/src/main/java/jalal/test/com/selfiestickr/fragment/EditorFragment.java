@@ -106,8 +106,9 @@ public class EditorFragment extends Fragment implements OnStickerPagerItemClickL
         ViewPager categoryPager = (ViewPager)view.findViewById(R.id.categoryPager);
         categoryPager.setAdapter(mCategoryPagerAdapter);
 
-        mImageView = (ScreenSizeAwareImageView)view.findViewById(R.id.image);
+        mImageView = new ScreenSizeAwareImageView(getActivity());
         mImageView.setImageURI(mUri);
+        mContainer.addView(mImageView);
 
         setPaletteBackground(mImageView);
 
@@ -156,7 +157,8 @@ public class EditorFragment extends Fragment implements OnStickerPagerItemClickL
         });
 
         onCategorySelected(0);
-        return  view;
+
+        return view;
     }
 
     @Override
@@ -167,7 +169,7 @@ public class EditorFragment extends Fragment implements OnStickerPagerItemClickL
         if(!mIsEditing) {
             mIsEditing = true;
 
-            sticker = new GestureTransformationView(getActivity(), mImageView);
+            sticker = new GestureTransformationView(getActivity());
             sticker.addOnStickerMoveListener(this);
 
             mStickersList.add(sticker);
@@ -201,7 +203,7 @@ public class EditorFragment extends Fragment implements OnStickerPagerItemClickL
                 imageBitmap.getHeight(), imageBitmap.getConfig());
         Canvas canvas = new Canvas(bmOverlay);
         canvas.drawBitmap(imageBitmap, new Matrix(), null);
-        addStickersToCanvas(canvas, imageBitmap.getWidth(), imageBitmap.getHeight());
+        addStickersToCanvas(canvas, imageBitmap);
 
         FileOutputStream out = null;
         try {
@@ -223,11 +225,11 @@ public class EditorFragment extends Fragment implements OnStickerPagerItemClickL
         }
     }
 
-    private void addStickersToCanvas(Canvas canvas, int width, int height) {
+    private void addStickersToCanvas(Canvas canvas, Bitmap bitmap) {
         for(GestureTransformationView sticker : mStickersList) {
             sticker.buildDrawingCache(true);
             Bitmap stickerBitmap = Bitmap.createScaledBitmap(sticker.getDrawingCache(true),
-                    width, height, false);
+                    bitmap.getWidth(), bitmap.getHeight(), false);
             canvas.drawBitmap(stickerBitmap, 0, 0, null);
             sticker.destroyDrawingCache();
         }
