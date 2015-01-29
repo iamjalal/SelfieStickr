@@ -8,6 +8,7 @@ import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
+import android.media.MediaScannerConnection;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.view.ViewPager;
@@ -19,7 +20,6 @@ import android.view.animation.AccelerateInterpolator;
 import android.widget.Button;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
-import android.widget.Toast;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -35,6 +35,7 @@ import jalal.test.com.selfiestickr.interf.OnStickerMoveListener;
 import jalal.test.com.selfiestickr.interf.OnStickerPagerItemClickListener;
 import jalal.test.com.selfiestickr.model.StickerCategory;
 import jalal.test.com.selfiestickr.util.FileUtils;
+import jalal.test.com.selfiestickr.util.MyMediaConnectionClient;
 import jalal.test.com.selfiestickr.view.GestureTransformationView;
 import jalal.test.com.selfiestickr.view.ScreenSizeAwareImageView;
 
@@ -115,7 +116,6 @@ public class EditorFragment extends Fragment implements OnStickerPagerItemClickL
         saveButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Toast.makeText(getActivity(), "Saving...", Toast.LENGTH_SHORT).show();
                 new Thread(new Runnable() {
                     @Override
                     public void run() {
@@ -165,24 +165,18 @@ public class EditorFragment extends Fragment implements OnStickerPagerItemClickL
 
         GestureTransformationView sticker = null;
 
-        if(!mIsEditing) {
-            mIsEditing = true;
-
+        if(mIsEditing) {
+            sticker = mStickersList.get(0);
+        }
+        else {
             sticker = new GestureTransformationView(getActivity());
             sticker.addOnStickerMoveListener(this);
-
-            mStickersList.add(sticker);
+            mStickersList.add(0, sticker);
             mContainer.addView(sticker);
         }
 
         Drawable stickerDrawable = getResources().getDrawable(id);
-        if(sticker != null) {
-            sticker.setStickrDrawable(stickerDrawable);
-        }
-        else if(mStickersList.size() > 0) {
-            mStickersList.get(mStickersList.size() - 1).setStickrDrawable(stickerDrawable);
-        }
-
+        sticker.setStickrDrawable(stickerDrawable);
     }
 
     @Override
@@ -197,34 +191,40 @@ public class EditorFragment extends Fragment implements OnStickerPagerItemClickL
             return;
         }
 
-        Bitmap imageOriginalBitmap = ((BitmapDrawable) mImageView.getDrawable()).getBitmap();
-        int imageScreenHeight = mImageView.getDrawableScreenHeight();
-        int imageScreenWidth = mImageView.getDrawableScreenWidth();
-
-        Bitmap imageScaledBitmap = Bitmap.createScaledBitmap(imageOriginalBitmap, imageScreenWidth,
-                imageScreenHeight, false);
-
-        Canvas canvas = new Canvas(imageScaledBitmap);
-        addStickersToCanvas(canvas, imageScaledBitmap);
-
+        Bitmap mergedBitmap = getMergedBitmap();
         FileOutputStream out = null;
         try {
             File file = FileUtils.getFile(getActivity());
             mFileUri = Uri.fromFile(file);
             out = new FileOutputStream(file);
-            imageScaledBitmap.compress(Bitmap.CompressFormat.PNG, 100, out);
+            mergedBitmap.compress(Bitmap.CompressFormat.PNG, 100, out);
         } catch (Exception e) {
             e.printStackTrace();
         } finally {
             try {
                 if (out != null) {
                     out.close();
+                    requestMediaScan(mFileUri);
                     mIsSaved = true;
                 }
             } catch (IOException e) {
                 e.printStackTrace();
             }
         }
+    }
+
+    private Bitmap getMergedBitmap() {
+        Bitmap imageOriginalBitmap = ((BitmapDrawable) mImageView.getDrawable()).getBitmap();
+        int imageScreenHeight = mImageView.getDrawableScreenHeight();
+        int imageScreenWidth = mImageView.getDrawableScreenWidth();
+
+        Bitmap totalBitmap = Bitmap.createScaledBitmap(imageOriginalBitmap, imageScreenWidth,
+                imageScreenHeight, false);
+
+        Canvas canvas = new Canvas(totalBitmap);
+        addStickersToCanvas(canvas, totalBitmap);
+
+        return totalBitmap;
     }
 
     private void addStickersToCanvas(Canvas canvas, Bitmap bitmap) {
@@ -242,7 +242,7 @@ public class EditorFragment extends Fragment implements OnStickerPagerItemClickL
 
     private void undo() {
         if(!mStickersList.isEmpty()) {
-            GestureTransformationView sticker = mStickersList.get(mStickersList.size() - 1);
+            GestureTransformationView sticker = mStickersList.get(0);
             mContainer.removeView(sticker);
             mStickersList.remove(sticker);
             mIsEditing = false;
@@ -293,5 +293,12 @@ public class EditorFragment extends Fragment implements OnStickerPagerItemClickL
         StickerCategory category = mCategoryPagerAdapter.getCategories()[position];
         mStickerPagerAdapter.setCategory(category);
         mStickerPager.setAdapter(mStickerPagerAdapter);
+    }
+
+    public void requestMediaScan(Uri uri) {
+        MyMediaConnectionClient client = new MyMediaConnectionClient(uri.getPath());
+        MediaScannerConnection connection = new MediaScannerConnection(getActivity(), client);
+        client.setConnection(connection);
+        connection.connect();
     }
 }

@@ -40,10 +40,10 @@ public class GestureTransformationView extends View {
     private int mActivePointerId_ = INVALID_POINTER_ID;
 
     private float mLastTouchX, mLastTouchY;
-
     private float mInitTouchX, mInitTouchY;
     private float mInitTouchX_, mInitTouchY_;
 
+    private int mHeight, mWidth;
     private Drawable mDrawable;
     private Camera mCamera = new Camera();
     private Matrix mMatrix = new Matrix();
@@ -77,6 +77,15 @@ public class GestureTransformationView extends View {
 
     public void setStickrDrawable(Drawable drawable) {
         mDrawable = drawable;
+        setDrawableBounds();
+    }
+
+    private void setDrawableBounds() {
+        int left = (mWidth - mDrawable.getIntrinsicWidth()) / 2;
+        int top = (mHeight - mDrawable.getIntrinsicHeight()) / 2;
+        mDrawable.setBounds(left, top, left + mDrawable.getIntrinsicWidth(), top + mDrawable.getIntrinsicHeight());
+
+        invalidate();
     }
 
     public void addOnStickerMoveListener(OnStickerMoveListener listener) {
@@ -112,10 +121,9 @@ public class GestureTransformationView extends View {
     @Override
     protected void onLayout(boolean changed, int l, int t, int r, int b) {
         super.onLayout(changed, l, t, r, b);
-
-        int left = (getMeasuredWidth() - mDrawable.getIntrinsicWidth()) / 2;
-        int top = (getMeasuredHeight() - mDrawable.getIntrinsicHeight()) / 2;
-        mDrawable.setBounds(left, top, left + mDrawable.getIntrinsicWidth(), top + mDrawable.getIntrinsicHeight());
+        mWidth = getMeasuredWidth();
+        mHeight = getMeasuredHeight();
+        setDrawableBounds();
     }
 
     @Override
@@ -251,7 +259,6 @@ public class GestureTransformationView extends View {
     }
 
     private void rotate(MotionEvent ev) {
-
         final int pointerIndex = ev.findPointerIndex(mActivePointerId);
         final int pointerIndex_ = ev.findPointerIndex(mActivePointerId_);
         if(pointerIndex_ != INVALID_POINTER_ID) {
@@ -288,5 +295,9 @@ public class GestureTransformationView extends View {
         double radiansInit = Math.atan2(deltaInit_y, deltaInit_x);
 
         return (float) Math.toDegrees(radiansInit);
+    }
+
+    private void setDrawable(Drawable drawable) {
+
     }
 }

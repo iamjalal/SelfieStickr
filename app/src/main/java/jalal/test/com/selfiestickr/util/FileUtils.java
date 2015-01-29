@@ -23,6 +23,6 @@ public class FileUtils {
             storageDir.mkdirs();
         }
 
-        return File.createTempFile(imageFileName, ".jpg", storageDir);
+        return File.createTempFile(imageFileName, ".png", storageDir);
     }
 }
