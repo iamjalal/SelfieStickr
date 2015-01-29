@@ -6,7 +6,6 @@ import android.app.Fragment;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
-import android.graphics.Matrix;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.net.Uri;
@@ -198,19 +197,22 @@ public class EditorFragment extends Fragment implements OnStickerPagerItemClickL
             return;
         }
 
-        Bitmap imageBitmap = ((BitmapDrawable) mImageView.getDrawable()).getBitmap();
-        Bitmap bmOverlay = Bitmap.createBitmap(imageBitmap.getWidth(),
-                imageBitmap.getHeight(), imageBitmap.getConfig());
-        Canvas canvas = new Canvas(bmOverlay);
-        canvas.drawBitmap(imageBitmap, new Matrix(), null);
-        addStickersToCanvas(canvas, imageBitmap);
+        Bitmap imageOriginalBitmap = ((BitmapDrawable) mImageView.getDrawable()).getBitmap();
+        int imageScreenHeight = mImageView.getDrawableScreenHeight();
+        int imageScreenWidth = mImageView.getDrawableScreenWidth();
+
+        Bitmap imageScaledBitmap = Bitmap.createScaledBitmap(imageOriginalBitmap, imageScreenWidth,
+                imageScreenHeight, false);
+
+        Canvas canvas = new Canvas(imageScaledBitmap);
+        addStickersToCanvas(canvas, imageScaledBitmap);
 
         FileOutputStream out = null;
         try {
             File file = FileUtils.getFile(getActivity());
             mFileUri = Uri.fromFile(file);
             out = new FileOutputStream(file);
-            bmOverlay.compress(Bitmap.CompressFormat.PNG, 100, out);
+            imageScaledBitmap.compress(Bitmap.CompressFormat.PNG, 100, out);
         } catch (Exception e) {
             e.printStackTrace();
         } finally {
@@ -228,8 +230,11 @@ public class EditorFragment extends Fragment implements OnStickerPagerItemClickL
     private void addStickersToCanvas(Canvas canvas, Bitmap bitmap) {
         for(GestureTransformationView sticker : mStickersList) {
             sticker.buildDrawingCache(true);
-            Bitmap stickerBitmap = Bitmap.createScaledBitmap(sticker.getDrawingCache(true),
-                    bitmap.getWidth(), bitmap.getHeight(), false);
+
+            int top = (mImageView.getHeight() - bitmap.getHeight()) / 2;
+            int left = (mImageView.getWidth() - bitmap.getWidth()) / 2;
+            Bitmap stickerBitmap = Bitmap.createBitmap(sticker.getDrawingCache(true),
+                    left, top, bitmap.getWidth(), bitmap.getHeight());
             canvas.drawBitmap(stickerBitmap, 0, 0, null);
             sticker.destroyDrawingCache();
         }
