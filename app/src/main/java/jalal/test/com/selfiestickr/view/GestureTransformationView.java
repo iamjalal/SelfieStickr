@@ -11,6 +11,7 @@ import android.view.ScaleGestureDetector;
 import android.view.View;
 
 import jalal.test.com.selfiestickr.interf.OnStickerMoveListener;
+import jalal.test.com.selfiestickr.util.DimensionUtils;
 
 /**
  * Custom {@link android.view.View} class that responds to different gestures to transform
@@ -47,6 +48,7 @@ public class GestureTransformationView extends View {
     private Drawable mDrawable;
     private Camera mCamera = new Camera();
     private Matrix mMatrix = new Matrix();
+    private Context mContext;
 
     private ScaleGestureDetector mScaleDetector;
 
@@ -73,6 +75,7 @@ public class GestureTransformationView extends View {
     public GestureTransformationView(Context context, AttributeSet attrs, int defStyleAttr) {
         super(context, attrs, defStyleAttr);
         mScaleDetector = new ScaleGestureDetector(context, new ScaleListener());
+        mContext = context;
     }
 
     public void setStickrDrawable(Drawable drawable) {
@@ -177,9 +180,9 @@ public class GestureTransformationView extends View {
                 }
 
                 final float y_ = ev.getY(pointerIndex_);
+                final float x_ = ev.getX(pointerIndex_);
 
-                float pointerSpanY = Math.abs(y - y_);
-                if(!isScaling && pointerSpanY < POINTER_SPAN_THRESHOLD) {
+                if(!isScaling && areFingersTogether(x, y, x_, y_)) {
                     if (Math.abs(dy) > Math.abs(dx)) {
                         rotateXAxis(dy);
                     } else {
@@ -297,7 +300,18 @@ public class GestureTransformationView extends View {
         return (float) Math.toDegrees(radiansInit);
     }
 
-    private void setDrawable(Drawable drawable) {
+    private boolean areFingersTogether(float x1, float y1, float x2, float y2) {
+        float spanX = Math.abs(x1 - x2);
+        float spanY = Math.abs(y1 - y2);
 
+        float yInMillimeters = DimensionUtils.pixelsToMilimeters(mContext, spanY);
+        float xInMillimeters = DimensionUtils.pixelsToMilimeters(mContext, spanX);
+
+        if(yInMillimeters < DimensionUtils.ONE_FINGER_DIMENSION_MM / 2 &&
+                xInMillimeters < DimensionUtils.ONE_FINGER_DIMENSION_MM * 2) {
+            return true;
+        }
+
+        return false;
     }
 }

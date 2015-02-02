@@ -142,7 +142,6 @@ public class ImagePickerFragment extends Fragment {
     @Override
     public void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
-
         outState.putParcelable(SAVED_IMAGE_URI, mCaptureImageUri);
     }
 }
