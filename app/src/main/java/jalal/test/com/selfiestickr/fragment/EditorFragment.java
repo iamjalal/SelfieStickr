@@ -166,12 +166,13 @@ public class EditorFragment extends Fragment implements OnStickerPagerItemClickL
         GestureTransformationView sticker = null;
 
         if(mIsEditing) {
-            sticker = mStickersList.get(0);
+            int size = mStickersList.size();
+            sticker = mStickersList.get(size - 1);
         }
         else {
             sticker = new GestureTransformationView(getActivity());
             sticker.addOnStickerMoveListener(this);
-            mStickersList.add(0, sticker);
+            mStickersList.add(sticker);
             mContainer.addView(sticker);
         }
 
@@ -242,7 +243,8 @@ public class EditorFragment extends Fragment implements OnStickerPagerItemClickL
 
     private void undo() {
         if(!mStickersList.isEmpty()) {
-            GestureTransformationView sticker = mStickersList.get(0);
+            int size = mStickersList.size();
+            GestureTransformationView sticker = mStickersList.get(size - 1);
             mContainer.removeView(sticker);
             mStickersList.remove(sticker);
             mIsEditing = false;
