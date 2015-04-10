@@ -163,7 +163,7 @@ public class EditorFragment extends Fragment implements OnStickerPagerItemClickL
     @Override
     public void onStickerPagerItemClick(int id) {
 
-        GestureTransformationView sticker = null;
+        GestureTransformationView sticker;
 
         if(mIsEditing) {
             int size = mStickersList.size();

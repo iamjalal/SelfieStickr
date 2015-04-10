@@ -11,9 +11,7 @@ import jalal.test.com.selfiestickr.R;
 import jalal.test.com.selfiestickr.interf.OnCategorySelectListener;
 import jalal.test.com.selfiestickr.model.StickerCategory;
 
-/**
- * Created by jalals on 12/10/2014.
- */
+
 public class CategoryPagerAdapter extends PagerAdapter {
 
     private static final int NUM_CATEGORIES = 2;
@@ -22,10 +20,14 @@ public class CategoryPagerAdapter extends PagerAdapter {
     private OnCategorySelectListener mCategorySelectListener;
 
     private final StickerCategory[] mCategories = {
-        new StickerCategory("mexico", 14),
+        new StickerCategory("palitos", 19),
+        new StickerCategory("animals", 23),
         new StickerCategory("comic", 15),
-        new StickerCategory("mexico", 14),
-        new StickerCategory("comic", 13)
+        new StickerCategory("corazones", 26),
+        new StickerCategory("flores", 25),
+        new StickerCategory("mexico", 13),
+        new StickerCategory("miscelanea", 27),
+        new StickerCategory("stars", 22)
     };
 
     public CategoryPagerAdapter(Context context) {

@@ -40,15 +40,18 @@ public class StickerPagerAdapter extends PagerAdapter {
         LayoutInflater inflater = LayoutInflater.from(mContext);
         View view = inflater.inflate(R.layout.item_sticker_pager, null);
 
-        final int stickerId = mContext.getResources().getIdentifier(mCategory.id+"_"+position,
+        final String positionString = String.format("%02d", position + 1);
+        final int stickerThumbId = mContext.getResources().getIdentifier(mCategory.id+"_"+positionString+"_thumb",
                 "drawable", mContext.getPackageName());
 
         ImageView stickerImage = (ImageView) view.findViewById(R.id.stickerImage);
-        stickerImage.setImageResource(stickerId);
+        stickerImage.setImageResource(stickerThumbId);
 
         view.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                int stickerId = mContext.getResources().getIdentifier(mCategory.id+"_"+positionString,
+                        "drawable", mContext.getPackageName());
                 mStickerClickListener.onStickerPagerItemClick(stickerId);
             }
         });
